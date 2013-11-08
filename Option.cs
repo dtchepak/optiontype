@@ -5,32 +5,6 @@ using System.Linq;
 
 namespace OptionType
 {
-    public class Option : IEquatable<Option>
-    {
-        private static readonly Option empty = new Option();
-        private Option() { }
-        public static Option<T> Full<T>(T value) { return Option<T>.Full(value); }
-        public static Option Empty() { return empty; }
-
-        public bool Equals(Option other) { return true; }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj is Option) return true;
-            if (obj.GetType().IsGenericType && obj.GetType().GetGenericTypeDefinition() == typeof (Option<>))
-            {
-                return obj.Equals(this);
-            }
-            return false;
-        }
-
-        public override int GetHashCode() { return 1234; }
-        public static bool operator ==(Option left, Option right) { return Equals(left, right); }
-        public static bool operator !=(Option left, Option right) { return !Equals(left, right); }
-    }
-
     public struct Option<T> : IEnumerable<T>, IEquatable<Option<T>>
     {
         private readonly bool hasValue;
@@ -120,6 +94,32 @@ namespace OptionType
         public static bool operator !=(Option<T> left, Option<T> right) { return !left.Equals(right); }
     }
 
+    public class Option : IEquatable<Option>
+    {
+        private static readonly Option empty = new Option();
+        private Option() { }
+        public static Option<T> Full<T>(T value) { return Option<T>.Full(value); }
+        public static Option Empty() { return empty; }
+
+        public bool Equals(Option other) { return true; }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is Option) return true;
+            if (obj.GetType().IsGenericType && obj.GetType().GetGenericTypeDefinition() == typeof (Option<>))
+            {
+                return obj.Equals(this);
+            }
+            return false;
+        }
+
+        public override int GetHashCode() { return 1234; }
+        public static bool operator ==(Option left, Option right) { return Equals(left, right); }
+        public static bool operator !=(Option left, Option right) { return !Equals(left, right); }
+    }
+
     public static class OptionExtensions
     {
         public static Option<T> ToOption<T>(this T instance)
@@ -136,6 +136,11 @@ namespace OptionType
         {
             var filtered = items.Where(pred);
             return filtered.Any() ?  Option.Full(filtered.First()) : Option.Empty();
+        }
+
+        public static Option<T> Flatten<T>(this Option<Option<T>> option)
+        {
+            return option.SelectMany(x => x);
         }
     }
 }

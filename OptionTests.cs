@@ -119,6 +119,14 @@ namespace OptionType
             Assert.AreEqual("", nullString.ToOption().Select(x => x.ToString()).ValueOr(""));
         }
 
+        [Test]
+        public void Flatten()
+        {
+            var nested = Option.Full(2).Select(Option.Full);
+            var option = nested.Flatten();
+            Assert.AreEqual(2, option.ValueOr(0));
+        }
+
         private T ThrowIfCalled<T>()
         {
             throw new Exception("Should not be called");
